@@ -40,7 +40,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 @ContextConfiguration(classes = {LegalEntitySagaIT.TestConfiguration.class})
 @TestPropertySource(properties = {"spring.config.location=classpath:application-it.yml"})
 @AutoConfigureWebTestClient
-
 public class LegalEntitySagaIT {
 
     @RegisterExtension
@@ -51,7 +50,7 @@ public class LegalEntitySagaIT {
     @DynamicPropertySource
     static void configureProperties(DynamicPropertyRegistry registry) {
         registry.add(
-            "spring.security.oauth2.client.provider.dbs.token-uri",
+            "spring.security.oauth2.client.provider.bb.token-uri",
             () -> String.format("%s/oauth/token", wireMockServer.baseUrl())
         );
         registry.add(
@@ -71,124 +70,8 @@ public class LegalEntitySagaIT {
     @Autowired
     private WebTestClient webTestClient;
 
-    /**
-     * Intention of this test is to verify that custom header which passed to legal entity controller is re-propagated
-     * to downstream call as well.
-     */
-    @Test
-    void legalEntitySaga() {
-        // Given
-        wireMockServer.stubFor(
-            WireMock.post("/oauth/token")
-                .willReturn(WireMock.aResponse()
-                    .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-                    .withBody("{\n\"access_token\": \"access-token\",\n\"expires_in\": 600,\n\"refresh_expires_in\": 1800,\n\"refresh_token\": \"refresh-token\",\n\"token_type\": \"bearer\",\n\"id_token\": \"id-token\",\n\"not-before-policy\": 1633622545,\n\"session_state\": \"72a28739-3d20-4965-bd86-64410df53d04\",\n\"scope\": \"openid\"\n}"))
-        );
-
-        wireMockServer.stubFor(
-            WireMock.get("/access-control/service-api/v2/legalentities/external/100000")
-                .willReturn(WireMock.aResponse()
-                    .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-                    .withBody("{\n\"additions\":{},\"id\":\"500000\",\"externalId\":\"100000\",\"name\":\"Legal Entity\",\"type\":\"CUSTOMER\"\n}"))
-        );
-
-        wireMockServer.stubFor(
-            WireMock.get("/access-control/service-api/v2/legalentities/500000")
-                .willReturn(WireMock.aResponse()
-                    .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-                    .withBody("{\n\"additions\":{},\"id\":\"500000\",\"externalId\":\"100000\",\"name\":\"Legal Entity\",\"type\":\"CUSTOMER\"\n}"))
-        );
-
-        wireMockServer.stubFor(
-            WireMock.get("/user-manager/service-api/v2/users/identities/realms")
-                .willReturn(WireMock.aResponse()
-                    .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-                    .withBody("[{\"id\":\"0006f11c\",\"realmName\":\"customer-bank\"}]"))
-        );
-
-        wireMockServer.stubFor(
-            WireMock.post("/user-manager/service-api/v2/users/identities/realms/customer-bank/legalentities")
-                .willReturn(WireMock.aResponse().withStatus(HttpStatus.ACCEPTED.value()))
-        );
-
-        wireMockServer.stubFor(
-            WireMock.get("/user-manager/service-api/v2/users/externalids/john.doe?skipHierarchyCheck=true")
-                .willReturn(WireMock.aResponse()
-                    .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-                    .withBody("{\"id\":\"9ac44fca\",\"externalId\":\"john.doe\",\"legalEntityId\":\"500000\",\"fullName\":\"John Doe\"}"))
-        );
-
-        wireMockServer.stubFor(
-            WireMock.get("/access-control/service-api/v2/accessgroups/serviceagreements/external/Service_Agreement_Id")
-                .willReturn(WireMock.aResponse()
-                    .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-                    .withBody("{\"additions\":{},\"creatorLegalEntity\":\"500000\",\"status\":\"ENABLED\",\"id\":\"500001\",\"externalId\":\"Service_Agreement_Id\",\"name\":\"\",\"description\":\"Custom Service Agreement\",\"isMaster\":false,\"validFromDate\":null,\"validFromTime\":null,\"validUntilDate\":null,\"validUntilTime\":null}"))
-        );
-
-        wireMockServer.stubFor(
-            WireMock.get("/access-control/service-api/v2/accessgroups/service-agreements/500001/participants")
-                .willReturn(WireMock.aResponse()
-                    .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-                    .withBody("[{\"additions\":{},\"id\":\"500000\",\"externalId\":\"100000\",\"name\":\"Legal Entity\",\"sharingUsers\":true,\"sharingAccounts\":true}]"))
-        );
-
-        wireMockServer.stubFor(
-            WireMock.put("/access-control/service-api/v2/accessgroups/serviceagreements/ingest/service-agreements/participants")
-                .willReturn(WireMock.aResponse().withStatus(HttpStatus.ACCEPTED.value()))
-        );
-
-        wireMockServer.stubFor(
-            WireMock.get("/access-control/service-api/v2/accesscontrol/accessgroups/serviceagreements/500001/users")
-                .willReturn(WireMock.aResponse().withStatus(HttpStatus.NOT_FOUND.value()))
-        );
-
-        wireMockServer.stubFor(
-            WireMock.put("/access-control/service-api/v2/accessgroups/serviceagreements/ingest/service-agreements/users")
-                .willReturn(WireMock.aResponse().withStatus(HttpStatus.ACCEPTED.value()))
-        );
-
-        wireMockServer.stubFor(
-            WireMock.get("/access-control/service-api/v2/accesscontrol/accessgroups/function-groups?serviceAgreementId=500001")
-                .willReturn(WireMock.aResponse()
-                    .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-                    .withBody("[{\"additions\":{},\"id\":\"500002\",\"serviceAgreementId\":\"500001\",\"name\":\"Private - Read only\",\"description\":\"Private - Read only\",\"type\":\"TEMPLATE\",\"permissions\":[{\"functionId\":\"1029\",\"assignedPrivileges\":[{\"additions\":{},\"privilege\":\"view\"}]}]},{\"additions\":{},\"id\":\"500003\",\"serviceAgreementId\":\"500001\",\"name\":\"Private - Full access\",\"description\":\"Private - Full access\",\"type\":\"TEMPLATE\",\"permissions\":[{\"functionId\":\"1029\",\"assignedPrivileges\":[{\"additions\":{},\"privilege\":\"create\"},{\"additions\":{},\"privilege\":\"edit\"},{\"additions\":{},\"privilege\":\"delete\"},{\"additions\":{},\"privilege\":\"execute\"},{\"additions\":{},\"privilege\":\"view\"}]}]}]"))
-        );
-
-        wireMockServer.stubFor(
-            WireMock.put("/access-control/service-api/v2/accessgroups/function-groups/batch/update")
-                .willReturn(WireMock.aResponse().withStatus(HttpStatus.ACCEPTED.value()))
-        );
-
-        wireMockServer.stubFor(
-            WireMock.put("/access-control/service-api/v2/accessgroups/users/permissions/user-permissions")
-                .willReturn(WireMock.aResponse().withStatus(HttpStatus.ACCEPTED.value()))
-        );
-
-        wireMockServer.stubFor(
-            WireMock.get("/access-control/service-api/v2/accesscontrol/accessgroups/users/9ac44fca/service-agreements/500001/permissions")
-                .willReturn(WireMock.aResponse()
-                    .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-                    .withBody("{\"additions\":{},\"approvalId\":null,\"items\":[{\"additions\":{},\"functionGroupId\":\"500002\",\"dataGroupIds\":[],\"selfApprovalPolicies\":[]},{\"additions\":{},\"functionGroupId\":\"500003\",\"dataGroupIds\":[],\"selfApprovalPolicies\":[]}]}"))
-        );
-
-        wireMockServer.stubFor(
-            WireMock.post("/arrangement-manager/service-api/v2/arrangements/batch")
-                .willReturn(WireMock.aResponse().withStatus(HttpStatus.ACCEPTED.value()))
-        );
-
-        wireMockServer.stubFor(
-            WireMock.get("/access-control/service-api/v2/accesscontrol/accessgroups/data-groups?serviceAgreementId=500001&includeItems=true")
-                .willReturn(WireMock.aResponse()
-                    .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-                    .withBody("[{\"additions\":{},\"id\":\"4002\",\"name\":\"Default PG\",\"description\":\"Default data group description\",\"serviceAgreementId\":\"500001\",\"type\":\"ARRANGEMENTS\",\"approvalId\":null,\"items\":[\"arrangement-id-1\"]},{\"additions\":{},\"id\":\"4003\",\"name\":\"Mixed PG\",\"description\":\"Default data group description\",\"serviceAgreementId\":\"500001\",\"type\":\"ARRANGEMENTS\",\"approvalId\":null,\"items\":[\"arrangement-id-2\"]}]"))
-        );
-
-        wireMockServer.stubFor(
-            WireMock.put("/access-control/service-api/v2/accessgroups/data-groups/batch/update/data-items")
-                .willReturn(WireMock.aResponse().withStatus(HttpStatus.ACCEPTED.value()))
-        );
-
-        LegalEntityTask legalEntityTask = new LegalEntityTask()
+    private static LegalEntityTask defaultLegalEntityTask() {
+        return new LegalEntityTask()
             .data(
                 new LegalEntity()
                     .name("Legal Entity")
@@ -272,6 +155,196 @@ public class LegalEntitySagaIT {
                             .isMaster(false)
                     )
             );
+    }
+
+    private void setupWireMock() {
+        wireMockServer.stubFor(
+            WireMock.post("/oauth/token")
+                .willReturn(WireMock.aResponse()
+                    .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                                .withBody("{\n\"access_token\": \"access-token\",\n\"expires_in\": 600,\n\"refresh_expires_in\": 1800,\n\"refresh_token\": \"refresh-token\",\n\"token_type\": \"bearer\",\n\"id_token\": \"id-token\",\n\"not-before-policy\": 1633622545,\n\"session_state\": \"72a28739-3d20-4965-bd86-64410df53d04\",\n\"scope\": \"openid\"\n}"))
+        );
+
+        wireMockServer.stubFor(
+            WireMock.get("/access-control/service-api/v2/legalentities/external/100000")
+                .willReturn(WireMock.aResponse()
+                    .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                                .withBody("{\n\"additions\":{},\"id\":\"500000\",\"externalId\":\"100000\",\"name\":\"Legal Entity\",\"type\":\"CUSTOMER\"\n}"))
+        );
+
+        wireMockServer.stubFor(
+            WireMock.get("/access-control/service-api/v2/legalentities/500000")
+                .willReturn(WireMock.aResponse()
+                    .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                                .withBody("{\n\"additions\":{},\"id\":\"500000\",\"externalId\":\"100000\",\"name\":\"Legal Entity\",\"type\":\"CUSTOMER\"\n}"))
+        );
+
+        wireMockServer.stubFor(
+            WireMock.put("/access-control/service-api/v2/legalentities")
+                .willReturn(WireMock.aResponse()
+                    .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                                .withBody("{\n\"additions\":{},\"id\":\"500000\",\"externalId\":\"100000\",\"name\":\"Legal Entity\",\"type\":\"CUSTOMER\"\n}"))
+        );
+
+        wireMockServer.stubFor(
+            WireMock.get("/user-manager/service-api/v2/users/identities/realms")
+                .willReturn(WireMock.aResponse()
+                    .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                    .withBody("[{\"id\":\"0006f11c\",\"realmName\":\"customer-bank\"}]"))
+        );
+
+        wireMockServer.stubFor(
+            WireMock.post("/user-manager/service-api/v2/users/identities/realms/customer-bank/legalentities")
+                .willReturn(WireMock.aResponse().withStatus(HttpStatus.ACCEPTED.value()))
+        );
+
+        wireMockServer.stubFor(
+            WireMock.get("/user-manager/service-api/v2/users/externalids/john.doe?skipHierarchyCheck=true")
+                .willReturn(WireMock.aResponse()
+                    .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                                .withBody("{\"id\":\"9ac44fca\",\"externalId\":\"john.doe\",\"legalEntityId\":\"500000\",\"fullName\":\"John Doe\"}"))
+        );
+
+        wireMockServer.stubFor(
+            WireMock.put("/user-manager/service-api/v2/users")
+                .willReturn(WireMock.aResponse()
+                    .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                                .withBody("{\"id\":\"9ac44fca\",\"externalId\":\"john.doe\",\"legalEntityId\":\"500000\",\"fullName\":\"John Doe\"}"))
+        );
+
+        wireMockServer.stubFor(
+            WireMock.get("/access-control/service-api/v2/accessgroups/serviceagreements/external/Service_Agreement_Id")
+                .willReturn(WireMock.aResponse()
+                    .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                                .withBody("{\"additions\":{},\"creatorLegalEntity\":\"500000\",\"status\":\"ENABLED\",\"id\":\"500001\",\"externalId\":\"Service_Agreement_Id\",\"name\":\"\",\"description\":\"Custom Service Agreement\",\"isMaster\":false,\"validFromDate\":null,\"validFromTime\":null,\"validUntilDate\":null,\"validUntilTime\":null}"))
+        );
+
+        wireMockServer.stubFor(
+            WireMock.get("/access-control/service-api/v2/accessgroups/service-agreements/500001/participants")
+                .willReturn(WireMock.aResponse()
+                    .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                                .withBody("[{\"additions\":{},\"id\":\"500000\",\"externalId\":\"100000\",\"name\":\"Legal Entity\",\"sharingUsers\":true,\"sharingAccounts\":true}]"))
+        );
+
+        wireMockServer.stubFor(
+                WireMock.put("/access-control/service-api/v2/accessgroups/serviceagreements/ingest/service-agreements/participants")
+                .willReturn(WireMock.aResponse().withStatus(HttpStatus.ACCEPTED.value()))
+        );
+
+        wireMockServer.stubFor(
+            WireMock.get("/access-control/service-api/v2/accesscontrol/accessgroups/serviceagreements/500001/users")
+                .willReturn(WireMock.aResponse().withStatus(HttpStatus.NOT_FOUND.value()))
+        );
+
+        wireMockServer.stubFor(
+                WireMock.put("/access-control/service-api/v2/accessgroups/serviceagreements/ingest/service-agreements/users")
+                .willReturn(WireMock.aResponse().withStatus(HttpStatus.ACCEPTED.value()))
+        );
+
+        wireMockServer.stubFor(
+                WireMock.get("/access-control/service-api/v2/accesscontrol/accessgroups/function-groups?serviceAgreementId=500001")
+                .willReturn(WireMock.aResponse()
+                    .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                                .withBody("[{\"additions\":{},\"id\":\"500002\",\"serviceAgreementId\":\"500001\",\"name\":\"Private - Read only\",\"description\":\"Private - Read only\",\"type\":\"TEMPLATE\",\"permissions\":[{\"functionId\":\"1029\",\"assignedPrivileges\":[{\"additions\":{},\"privilege\":\"view\"}]}]},{\"additions\":{},\"id\":\"500003\",\"serviceAgreementId\":\"500001\",\"name\":\"Private - Full access\",\"description\":\"Private - Full access\",\"type\":\"TEMPLATE\",\"permissions\":[{\"functionId\":\"1029\",\"assignedPrivileges\":[{\"additions\":{},\"privilege\":\"create\"},{\"additions\":{},\"privilege\":\"edit\"},{\"additions\":{},\"privilege\":\"delete\"},{\"additions\":{},\"privilege\":\"execute\"},{\"additions\":{},\"privilege\":\"view\"}]}]}]"))
+        );
+
+        wireMockServer.stubFor(
+            WireMock.put("/access-control/service-api/v2/accessgroups/function-groups/batch/update")
+                .willReturn(WireMock.aResponse().withStatus(HttpStatus.ACCEPTED.value()))
+        );
+
+        wireMockServer.stubFor(
+            WireMock.put("/access-control/service-api/v2/accessgroups/users/permissions/user-permissions")
+                .willReturn(WireMock.aResponse().withStatus(HttpStatus.ACCEPTED.value()))
+        );
+
+        wireMockServer.stubFor(
+                WireMock.get("/access-control/service-api/v2/accesscontrol/accessgroups/users/9ac44fca/service-agreements/500001/permissions")
+                .willReturn(WireMock.aResponse()
+                    .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                                .withBody("{\"additions\":{},\"approvalId\":null,\"items\":[{\"additions\":{},\"functionGroupId\":\"500002\",\"dataGroupIds\":[],\"selfApprovalPolicies\":[]},{\"additions\":{},\"functionGroupId\":\"500003\",\"dataGroupIds\":[],\"selfApprovalPolicies\":[]}]}"))
+        );
+
+        wireMockServer.stubFor(
+            WireMock.post("/arrangement-manager/service-api/v2/arrangements/batch")
+                .willReturn(WireMock.aResponse().withStatus(HttpStatus.ACCEPTED.value()))
+        );
+
+        wireMockServer.stubFor(
+                WireMock.post("/access-control/service-api/v2/accessgroups/data-groups")
+                        .willReturn(WireMock.aResponse().withStatus(HttpStatus.CREATED.value()))
+        );
+
+        wireMockServer.stubFor(
+                WireMock.get("/access-control/service-api/v2/accesscontrol/accessgroups/data-groups?serviceAgreementId=500001&includeItems=true")
+                .willReturn(WireMock.aResponse()
+                    .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                                .withBody("[{\"additions\":{},\"id\":\"4002\",\"name\":\"Default PG\",\"description\":\"Default data group description\",\"serviceAgreementId\":\"500001\",\"type\":\"ARRANGEMENTS\",\"approvalId\":null,\"items\":[\"arrangement-id-1\"]},{\"additions\":{},\"id\":\"4003\",\"name\":\"Mixed PG\",\"description\":\"Default data group description\",\"serviceAgreementId\":\"500001\",\"type\":\"ARRANGEMENTS\",\"approvalId\":null,\"items\":[\"arrangement-id-2\"]}]"))
+        );
+
+        wireMockServer.stubFor(
+            WireMock.put("/access-control/service-api/v2/accessgroups/data-groups/batch/update/data-items")
+                .willReturn(WireMock.aResponse().withStatus(HttpStatus.ACCEPTED.value()))
+        );
+    }
+
+    /**
+     * Intention of this test is to verify that custom header which passed to legal entity controller is re-propagated
+     * to downstream call as well.
+     */
+    @Test
+    void legalEntitySaga() {
+        // Given
+        setupWireMock();
+        LegalEntityTask legalEntityTask = defaultLegalEntityTask();
+
+        // When
+        webTestClient.post()
+            .uri("/legal-entity")
+            .header("Content-Type", "application/json")
+                .header("X-TID", "tenant-id")
+            .bodyValue(legalEntityTask.getLegalEntity())
+            .exchange()
+            .expectStatus().isEqualTo(200);
+
+        // Then
+        wireMockServer.verify(WireMock.getRequestedFor(WireMock.urlEqualTo("/access-control/service-api/v2/legalentities/500000"))
+                .withHeader("X-TID", WireMock.equalTo("tenant-id")));
+
+        Assertions.assertTrue(wireMockServer.findAllUnmatchedRequests().isEmpty());
+    }
+
+    @Test
+    void legalEntitySagaEmptyProductGroup() {
+        // Given
+        setupWireMock();
+        LegalEntityTask legalEntityTask = defaultLegalEntityTask();
+        ProductGroup productGroup = new ProductGroup();
+        productGroup.productGroupType(BaseProductGroup.ProductGroupTypeEnum.ARRANGEMENTS).name("somePgName")
+                .description("somePgDescription").savingAccounts(Collections.emptyList());
+        legalEntityTask.getLegalEntity().productGroups(Collections.singletonList(productGroup));
+
+        // When
+        webTestClient.post()
+                .uri("/legal-entity")
+                .header("Content-Type", "application/json")
+                .header("X-TID", "tenant-id")
+                .bodyValue(legalEntityTask.getLegalEntity())
+                .exchange()
+                .expectStatus().isEqualTo(200);
+
+        // Then
+        wireMockServer.verify(WireMock.getRequestedFor(WireMock.urlEqualTo("/access-control/service-api/v2/legalentities/500000"))
+                .withHeader("X-TID", WireMock.equalTo("tenant-id")));
+
+        Assertions.assertTrue(wireMockServer.findAllUnmatchedRequests().isEmpty());
+    }
+
+    @Test
+    void legalEntitySagaUpdateLegalEntity() {
+        // Given
+        setupWireMock();
+        LegalEntityTask legalEntityTask = defaultLegalEntityTask();
 
         // When
         webTestClient.post()
@@ -279,12 +352,21 @@ public class LegalEntitySagaIT {
             .header("Content-Type", "application/json")
             .header("X-TID", "tenant-id")
             .bodyValue(legalEntityTask.getLegalEntity())
-            .exchange().
-            expectStatus().isEqualTo(200);
+            .exchange()
+            .expectStatus().isEqualTo(200);
+
+        webTestClient.post()
+            .uri("/legal-entity")
+            .header("Content-Type", "application/json")
+                .header("X-TID", "tenant-id")
+            .bodyValue(legalEntityTask.getLegalEntity().name("Updated name"))
+            .exchange()
+            .expectStatus().isEqualTo(200);
+
 
         // Then
         wireMockServer.verify(WireMock.getRequestedFor(WireMock.urlEqualTo("/access-control/service-api/v2/legalentities/500000"))
-            .withHeader("X-TID", WireMock.equalTo("tenant-id")));
+                .withHeader("X-TID", WireMock.equalTo("tenant-id")));
 
         Assertions.assertTrue(wireMockServer.findAllUnmatchedRequests().isEmpty());
     }
