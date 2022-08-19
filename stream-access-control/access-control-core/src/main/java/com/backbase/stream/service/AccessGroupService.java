@@ -648,11 +648,11 @@ public class AccessGroupService {
     }
 
 
-    private String prettyPrintPresentationDataGroups(List<PresentationDataGroupIdentifier> dataGroupIdentifiers) {
+    private String prettyPrintPresentationDataGroups(List<PresentationIdentifier> dataGroupIdentifiers) {
         if (dataGroupIdentifiers == null) {
             return "NO DATA GROUP IDS!";
         }
-        return dataGroupIdentifiers.stream().map(PresentationDataGroupIdentifier::getIdIdentifier).collect(Collectors.joining(","));
+        return dataGroupIdentifiers.stream().map(PresentationIdentifier::getIdIdentifier).collect(Collectors.joining(","));
     }
 
     private boolean hasDataGroupIdentifiers(PresentationFunctionGroupDataGroup functionWithDataGroup) {
@@ -664,8 +664,8 @@ public class AccessGroupService {
         return new PresentationIdentifier().idIdentifier(id);
     }
 
-    private PresentationDataGroupIdentifier mapDataGroupId(String id) {
-        return new PresentationDataGroupIdentifier().idIdentifier(id);
+    private PresentationIdentifier mapDataGroupId(String id) {
+        return new PresentationIdentifier().idIdentifier(id);
     }
 
     private String prettyPrintDataGroups(List<PresentationAssignUserPermissions> r) {
@@ -674,7 +674,7 @@ public class AccessGroupService {
             .map(fdgd -> "functionGroupIdentifier: "
                 + fdgd.getFunctionGroupIdentifier().getIdIdentifier()
                 + " dataGroupItems: [" + fdgd.getDataGroupIdentifiers().stream()
-                .map(PresentationDataGroupIdentifier::getIdIdentifier)
+                .map(PresentationIdentifier::getIdIdentifier)
                 .collect(Collectors.joining(",")) + "]").collect(Collectors.joining(", "));
     }
 

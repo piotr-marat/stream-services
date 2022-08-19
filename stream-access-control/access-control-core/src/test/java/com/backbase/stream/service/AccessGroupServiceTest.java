@@ -30,7 +30,7 @@ import com.backbase.dbs.accesscontrol.api.service.v2.model.PersistenceApprovalPe
 import com.backbase.dbs.accesscontrol.api.service.v2.model.PersistenceApprovalPermissionsGetResponseBody;
 import com.backbase.dbs.accesscontrol.api.service.v2.model.PresentationAction;
 import com.backbase.dbs.accesscontrol.api.service.v2.model.PresentationAssignUserPermissions;
-import com.backbase.dbs.accesscontrol.api.service.v2.model.PresentationDataGroupIdentifier;
+import com.backbase.dbs.accesscontrol.api.service.v2.model.PresentationIdentifier;
 import com.backbase.dbs.accesscontrol.api.service.v2.model.PresentationFunctionGroupDataGroup;
 import com.backbase.dbs.accesscontrol.api.service.v2.model.PresentationIdentifier;
 import com.backbase.dbs.accesscontrol.api.service.v2.model.PresentationParticipantBatchUpdate;
@@ -437,12 +437,12 @@ class AccessGroupServiceTest {
                     new PresentationFunctionGroupDataGroup().functionGroupIdentifier(
                         new PresentationIdentifier().idIdentifier("business-function-group-id-1")
                     ).dataGroupIdentifiers(Arrays.asList(
-                        new PresentationDataGroupIdentifier().idIdentifier("data-group-1"),
-                        new PresentationDataGroupIdentifier().idIdentifier("data-group-0"))),
+                        new PresentationIdentifier().idIdentifier("data-group-1"),
+                        new PresentationIdentifier().idIdentifier("data-group-0"))),
                     new PresentationFunctionGroupDataGroup().functionGroupIdentifier(
                         new PresentationIdentifier().idIdentifier("business-function-group-id-2")
                     ).dataGroupIdentifiers(Arrays.asList(
-                        new PresentationDataGroupIdentifier().idIdentifier("data-group-2")
+                        new PresentationIdentifier().idIdentifier("data-group-2")
                     )
                 ))
         ));
@@ -606,7 +606,7 @@ class AccessGroupServiceTest {
                 .functionGroupDataGroups(Collections.singletonList(
                     new PresentationFunctionGroupDataGroup().functionGroupIdentifier(
                         new PresentationIdentifier().idIdentifier("business-function-group-id-1")
-                    ).dataGroupIdentifiers(Collections.singletonList(new PresentationDataGroupIdentifier().idIdentifier("data-group-0")))
+                    ).dataGroupIdentifiers(Collections.singletonList(new PresentationIdentifier().idIdentifier("data-group-0")))
                 ))
         );
 
