@@ -272,6 +272,7 @@ public class UserService {
             createIdentityRequest.setFullName(user.getFullName());
             createIdentityRequest.setEmailAddress(user.getEmailAddress().getAddress());
             createIdentityRequest.setMobileNumber(user.getMobileNumber().getNumber());
+            createIdentityRequest.setAdditions(user.getAdditions());
             ofNullable(user.getAttributes()).ifPresent(createIdentityRequest::setAttributes);
         }
 
