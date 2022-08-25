@@ -289,7 +289,8 @@ public class UserService {
                 user.setExternalId(identityCreatedItem.getExternalId());
                 return user;
             })
-            .flatMap(newUser -> this.updateIdentityUserAttributes(user, streamTask));
+            .flatMap(newUser -> this.updateIdentityUserAttributes(user, streamTask))
+            .flatMap(newUser -> this.updateUser(newUser));
     }
 
     private Mono<User> updateIdentityUserAttributes(User user, StreamTask streamTask) {
