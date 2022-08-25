@@ -263,6 +263,7 @@ public class UserService {
         CreateIdentityRequest createIdentityRequest = new CreateIdentityRequest();
         createIdentityRequest.setLegalEntityInternalId(legalEntityInternalId);
         createIdentityRequest.setExternalId(user.getExternalId());
+        createIdentityRequest.setAdditions(user.getAdditions());
 
         if (IdentityUserLinkStrategy.CREATE_IN_IDENTITY.equals(user.getIdentityLinkStrategy())) {
             Objects.requireNonNull(user.getFullName(), "User Full Name is required for user: " + user.getExternalId() + " in legal entity: " + legalEntityInternalId);
