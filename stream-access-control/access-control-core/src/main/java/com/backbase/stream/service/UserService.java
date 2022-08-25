@@ -294,10 +294,9 @@ public class UserService {
 
     private Mono<User> updateIdentityUserAttributes(User user, StreamTask streamTask) {
         if (IdentityUserLinkStrategy.IMPORT_FROM_IDENTIY.equals(user.getIdentityLinkStrategy())
-            && (user.getAttributes() != null || user.getAdditions() != null)) {
+            && user.getAttributes() != null) {
             UpdateIdentityRequest replaceIdentity = new UpdateIdentityRequest();
             replaceIdentity.attributes(user.getAttributes());
-            replaceIdentity.additions(user.getAdditions());
             return identityManagementApi.updateIdentity(user.getInternalId(), replaceIdentity)
                 .onErrorResume(WebClientResponseException.class, e -> {
                     log.error("Error updating identity: {} Response: {}", user.getExternalId(), e.getResponseBodyAsString());
