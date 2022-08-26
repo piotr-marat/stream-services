@@ -18,7 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Mono;
-
+import com.backbase.stream.product.task.BatchProductIngestionMode;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
 import java.util.List;
@@ -94,7 +94,7 @@ public class ProductIngestionServiceImpl implements ProductIngestionService {
                 .externalId(res.getServiceAgreementExternalId()));
 
         return new BatchProductGroupTask(res.getServiceAgreementInternalId(),
-                bpg, BatchProductGroupTask.IngestionMode.REPLACE_ARRANGEMENTS_ONLY);
+                bpg, BatchProductIngestionMode.dataGroupsReplaceMode());
     }
 
     private Mono<ProductIngestResponse> validate(ProductIngestResponse res) {
