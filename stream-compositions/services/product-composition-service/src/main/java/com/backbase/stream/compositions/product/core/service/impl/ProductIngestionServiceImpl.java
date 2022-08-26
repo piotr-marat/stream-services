@@ -94,7 +94,7 @@ public class ProductIngestionServiceImpl implements ProductIngestionService {
                 .externalId(res.getServiceAgreementExternalId()));
 
         return new BatchProductGroupTask(res.getServiceAgreementInternalId(),
-                bpg, BatchProductGroupTask.IngestionMode.UPDATE);
+                bpg, BatchProductGroupTask.IngestionMode.REPLACE_ARRANGEMENTS_ONLY);
     }
 
     private Mono<ProductIngestResponse> validate(ProductIngestResponse res) {
