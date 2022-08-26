@@ -66,7 +66,7 @@ public class BatchProductIngestionMode {
 
     public static BatchProductIngestionMode dataGroupsReplaceMode() {
         return BatchProductIngestionMode.builder()
-                .dataGroupIngestionMode(DataGroupsIngestionMode.REPLACE.REPLACE)
+                .dataGroupIngestionMode(DataGroupsIngestionMode.REPLACE)
                 .build();
     }
 
