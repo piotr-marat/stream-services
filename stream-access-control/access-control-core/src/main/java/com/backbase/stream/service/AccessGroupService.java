@@ -745,7 +745,8 @@ public class AccessGroupService {
             .map(StreamUtils::getInternalProductIds)
             .flatMap(List::stream)
             .collect(Collectors.toSet());
-        if (BatchProductGroupTask.IngestionMode.REPLACE.equals(task.getIngestionMode())) {
+        if (BatchProductGroupTask.IngestionMode.REPLACE.equals(task.getIngestionMode())
+            || BatchProductGroupTask.IngestionMode.REPLACE_ARRANGEMENTS_ONLY.equals(task.getIngestionMode())) {
             // if REPLACE mode, existing products (not sent in the request) also need to be added to the set of affected arrangements.
             affectedArrangements.addAll(existingDataGroups.stream()
                 .map(DataGroupItem::getItems)
