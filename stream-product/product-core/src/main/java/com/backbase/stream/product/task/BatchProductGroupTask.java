@@ -39,7 +39,8 @@ public class BatchProductGroupTask extends StreamTask {
 
     public enum IngestionMode {
         UPDATE,
-        REPLACE
+        REPLACE,
+        REPLACE_ARRANGEMENTS_ONLY
     }
 
     @Override
