@@ -19,7 +19,7 @@ public class BatchProductIngestionMode {
     private ArrangementsMode arrangementsMode = ArrangementsMode.UPSERT;
 
     /**
-     * @return True, if function groups should be replaced.
+     * @return True, if function groups should be replaced (function groups not existing in batch will be REMOVED from DBS).
      * Otherwise, they should be just updated.
      */
     public Boolean isFunctionGroupsReplaceEnabled() {
@@ -27,7 +27,7 @@ public class BatchProductIngestionMode {
     }
 
     /**
-     * @return True, if data groups should be replaced.
+     * @return True, if data groups should be replaced (data group and data group items not existing in batch will be REMOVED from DBS).
      * Otherwise, they should be just updated.
      */
     public Boolean isDataGroupsReplaceEnabled() {
@@ -35,7 +35,7 @@ public class BatchProductIngestionMode {
     }
 
     /**
-     * @return True, if arrangements should be replaced (non-existing arrangements will be REMOVED from DBS).
+     * @return True, if arrangements should be replaced (arrangements not existing in batch will be REMOVED from DBS).
      * Otherwise, they should be just updated.
      */
     public Boolean isArrangementsReplaceEnabled() {
