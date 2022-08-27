@@ -290,7 +290,7 @@ public class UpdatedServiceAgreementSaga implements StreamTaskExecutor<UpdatedSe
             ));
         log.trace("Permissions {}", request);
         BatchProductGroupTask bpgTask = new BatchProductGroupTask(BATCH_PRODUCT_GROUP_ID + System.currentTimeMillis(),
-            new BatchProductGroup().serviceAgreement(sa), BatchProductIngestionMode.allUpsertMode());
+            new BatchProductGroup().serviceAgreement(sa), BatchProductIngestionMode.upsertMode());
         return accessGroupService.assignPermissionsBatch(bpgTask, request)
             .onErrorResume(e -> e instanceof StreamTaskException || e instanceof WebClientResponseException, e -> {
                 bpgTask.setState(FAILED);

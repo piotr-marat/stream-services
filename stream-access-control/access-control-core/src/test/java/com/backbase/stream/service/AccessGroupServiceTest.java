@@ -32,7 +32,6 @@ import com.backbase.dbs.accesscontrol.api.service.v2.model.PresentationAction;
 import com.backbase.dbs.accesscontrol.api.service.v2.model.PresentationAssignUserPermissions;
 import com.backbase.dbs.accesscontrol.api.service.v2.model.PresentationIdentifier;
 import com.backbase.dbs.accesscontrol.api.service.v2.model.PresentationFunctionGroupDataGroup;
-import com.backbase.dbs.accesscontrol.api.service.v2.model.PresentationIdentifier;
 import com.backbase.dbs.accesscontrol.api.service.v2.model.PresentationParticipantBatchUpdate;
 import com.backbase.dbs.accesscontrol.api.service.v2.model.PresentationParticipantPutBody;
 import com.backbase.dbs.accesscontrol.api.service.v2.model.PresentationServiceAgreementUserPair;
@@ -342,7 +341,7 @@ class AccessGroupServiceTest {
         BatchProductGroupTask batchProductGroupTask = new BatchProductGroupTask().data(
             new BatchProductGroup().serviceAgreement(new ServiceAgreement().externalId("sa_benedict").internalId("sa-internal-id"))
         );
-        batchProductGroupTask.setIngestionMode(BatchProductIngestionMode.allUpsertMode());
+        batchProductGroupTask.setIngestionMode(BatchProductIngestionMode.upsertMode());
 
         Map<BusinessFunctionGroup, List<BaseProductGroup>> baseProductGroupMap = new HashMap<>();
         baseProductGroupMap.put(new BusinessFunctionGroup().id("business-function-group-id-1"), Collections.emptyList());
@@ -409,7 +408,7 @@ class AccessGroupServiceTest {
         BatchProductGroupTask batchProductGroupTask = new BatchProductGroupTask().data(
             new BatchProductGroup().serviceAgreement(new ServiceAgreement().externalId("sa_benedict").internalId("sa-internal-id"))
         );
-        batchProductGroupTask.setIngestionMode(BatchProductIngestionMode.allUpsertMode());
+        batchProductGroupTask.setIngestionMode(BatchProductIngestionMode.upsertMode());
 
         Map<BusinessFunctionGroup, List<BaseProductGroup>> baseProductGroupMap = new HashMap<>();
         baseProductGroupMap.put(

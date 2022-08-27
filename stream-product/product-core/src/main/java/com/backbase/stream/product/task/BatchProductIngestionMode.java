@@ -22,7 +22,7 @@ public class BatchProductIngestionMode {
      * @return True, if function groups should be replaced.
      * Otherwise, they should be just updated.
      */
-    public Boolean isReplacingFunctionGroupsEnabled() {
+    public Boolean isFunctionGroupsReplaceEnabled() {
         return functionGroupsIngestionMode == FunctionGroupsIngestionMode.REPLACE;
     }
 
@@ -30,7 +30,7 @@ public class BatchProductIngestionMode {
      * @return True, if data groups should be replaced.
      * Otherwise, they should be just updated.
      */
-    public Boolean isReplacingDataGroupsEnabled() {
+    public Boolean isDataGroupsReplaceEnabled() {
         return dataGroupIngestionMode == DataGroupsIngestionMode.REPLACE;
     }
 
@@ -38,11 +38,16 @@ public class BatchProductIngestionMode {
      * @return True, if arrangements should be replaced (non-existing arrangements will be REMOVED from DBS).
      * Otherwise, they should be just updated.
      */
-    public Boolean isReplacingArrangementsEnabled() {
+    public Boolean isArrangementsReplaceEnabled() {
         return arrangementsIngestionMode == ArrangementsIngestionMode.REPLACE;
     }
 
-    public static BatchProductIngestionMode allUpsertMode() {
+    /**
+     * Preset BatchProductIngestionMode: all set to UPSERT.
+     *
+     * @return BatchProductIngestionMode
+     */
+    public static BatchProductIngestionMode upsertMode() {
         return BatchProductIngestionMode.builder()
                 .functionGroupsIngestionMode(FunctionGroupsIngestionMode.UPSERT)
                 .dataGroupIngestionMode(DataGroupsIngestionMode.UPSERT)
@@ -50,7 +55,12 @@ public class BatchProductIngestionMode {
                 .build();
     }
 
-    public static BatchProductIngestionMode allReplaceMode() {
+    /**
+     * Preset BatchProductIngestionMode: all set to REPLACE.
+     *
+     * @return BatchProductIngestionMode
+     */
+    public static BatchProductIngestionMode replaceMode() {
         return BatchProductIngestionMode.builder()
                 .functionGroupsIngestionMode(FunctionGroupsIngestionMode.REPLACE)
                 .dataGroupIngestionMode(DataGroupsIngestionMode.REPLACE)
@@ -58,12 +68,22 @@ public class BatchProductIngestionMode {
                 .build();
     }
 
+    /**
+     * Preset BatchProductIngestionMode: FunctionGroupsIngestionMode set to REPLACE, rest to UPSERT.
+     *
+     * @return BatchProductIngestionMode
+     */
     public static BatchProductIngestionMode functionGroupsReplaceMode() {
         return BatchProductIngestionMode.builder()
                 .functionGroupsIngestionMode(FunctionGroupsIngestionMode.REPLACE)
                 .build();
     }
 
+    /**
+     * Preset BatchProductIngestionMode: DataGroupsIngestionMode set to REPLACE, rest to UPSERT.
+     *
+     * @return BatchProductIngestionMode
+     */
     public static BatchProductIngestionMode dataGroupsReplaceMode() {
         return BatchProductIngestionMode.builder()
                 .dataGroupIngestionMode(DataGroupsIngestionMode.REPLACE)
