@@ -6,7 +6,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * Batch product ingestion mode.
+ * Batch product ingestion mode. Keeps settings for three main resources involved in the process:
+ * - Function groups
+ * - Data groups
+ * - Arrangements
+ * <p>
+ * Ingestion mode for each of those can be configured separately.
  */
 @Data
 @Builder
