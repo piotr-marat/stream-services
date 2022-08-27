@@ -96,7 +96,7 @@ public class BatchProductIngestionMode {
      */
     public enum FunctionGroupsMode {
         UPSERT,
-        REPLACE;
+        REPLACE
     }
 
     /**
