@@ -14,16 +14,16 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class BatchProductIngestionMode {
 
-    private FunctionGroupsIngestionMode functionGroupsIngestionMode = FunctionGroupsIngestionMode.UPSERT;
-    private DataGroupsIngestionMode dataGroupIngestionMode = DataGroupsIngestionMode.UPSERT;
-    private ArrangementsIngestionMode arrangementsIngestionMode = ArrangementsIngestionMode.UPSERT;
+    private FunctionGroupsMode functionGroupsMode = FunctionGroupsMode.UPSERT;
+    private DataGroupsMode dataGroupIngestionMode = DataGroupsMode.UPSERT;
+    private ArrangementsMode arrangementsMode = ArrangementsMode.UPSERT;
 
     /**
      * @return True, if function groups should be replaced.
      * Otherwise, they should be just updated.
      */
     public Boolean isFunctionGroupsReplaceEnabled() {
-        return functionGroupsIngestionMode == FunctionGroupsIngestionMode.REPLACE;
+        return functionGroupsMode == FunctionGroupsMode.REPLACE;
     }
 
     /**
@@ -31,7 +31,7 @@ public class BatchProductIngestionMode {
      * Otherwise, they should be just updated.
      */
     public Boolean isDataGroupsReplaceEnabled() {
-        return dataGroupIngestionMode == DataGroupsIngestionMode.REPLACE;
+        return dataGroupIngestionMode == DataGroupsMode.REPLACE;
     }
 
     /**
@@ -39,7 +39,7 @@ public class BatchProductIngestionMode {
      * Otherwise, they should be just updated.
      */
     public Boolean isArrangementsReplaceEnabled() {
-        return arrangementsIngestionMode == ArrangementsIngestionMode.REPLACE;
+        return arrangementsMode == ArrangementsMode.REPLACE;
     }
 
     /**
@@ -49,9 +49,9 @@ public class BatchProductIngestionMode {
      */
     public static BatchProductIngestionMode upsertMode() {
         return BatchProductIngestionMode.builder()
-                .functionGroupsIngestionMode(FunctionGroupsIngestionMode.UPSERT)
-                .dataGroupIngestionMode(DataGroupsIngestionMode.UPSERT)
-                .arrangementsIngestionMode(ArrangementsIngestionMode.UPSERT)
+                .functionGroupsMode(FunctionGroupsMode.UPSERT)
+                .dataGroupIngestionMode(DataGroupsMode.UPSERT)
+                .arrangementsMode(ArrangementsMode.UPSERT)
                 .build();
     }
 
@@ -62,9 +62,9 @@ public class BatchProductIngestionMode {
      */
     public static BatchProductIngestionMode replaceMode() {
         return BatchProductIngestionMode.builder()
-                .functionGroupsIngestionMode(FunctionGroupsIngestionMode.REPLACE)
-                .dataGroupIngestionMode(DataGroupsIngestionMode.REPLACE)
-                .arrangementsIngestionMode(ArrangementsIngestionMode.REPLACE)
+                .functionGroupsMode(FunctionGroupsMode.REPLACE)
+                .dataGroupIngestionMode(DataGroupsMode.REPLACE)
+                .arrangementsMode(ArrangementsMode.REPLACE)
                 .build();
     }
 
@@ -75,7 +75,7 @@ public class BatchProductIngestionMode {
      */
     public static BatchProductIngestionMode functionGroupsReplaceMode() {
         return BatchProductIngestionMode.builder()
-                .functionGroupsIngestionMode(FunctionGroupsIngestionMode.REPLACE)
+                .functionGroupsMode(FunctionGroupsMode.REPLACE)
                 .build();
     }
 
@@ -86,7 +86,7 @@ public class BatchProductIngestionMode {
      */
     public static BatchProductIngestionMode dataGroupsReplaceMode() {
         return BatchProductIngestionMode.builder()
-                .dataGroupIngestionMode(DataGroupsIngestionMode.REPLACE)
+                .dataGroupIngestionMode(DataGroupsMode.REPLACE)
                 .build();
     }
 
@@ -94,7 +94,7 @@ public class BatchProductIngestionMode {
      * UPSERT - Function groups will be INSERTED/UPDATED.
      * REPLACE - Function groups will be REPLACED.
      */
-    public enum FunctionGroupsIngestionMode {
+    public enum FunctionGroupsMode {
         UPSERT,
         REPLACE;
     }
@@ -103,7 +103,7 @@ public class BatchProductIngestionMode {
      * UPSERT - Data groups will be INSERTED/UPDATED.
      * REPLACE - Data groups will be REPLACED.
      */
-    public enum DataGroupsIngestionMode {
+    public enum DataGroupsMode {
         UPSERT,
         REPLACE
     }
@@ -112,7 +112,7 @@ public class BatchProductIngestionMode {
      * UPSERT - Arrangements will be INSERTED/UPDATED.
      * REPLACE - Arrangements will be REPLACED.
      */
-    public enum ArrangementsIngestionMode {
+    public enum ArrangementsMode {
         UPSERT,
         REPLACE
     }
