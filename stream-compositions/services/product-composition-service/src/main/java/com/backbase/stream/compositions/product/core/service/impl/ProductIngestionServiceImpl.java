@@ -95,9 +95,7 @@ public class ProductIngestionServiceImpl implements ProductIngestionService {
 
         return new BatchProductGroupTask(res.getServiceAgreementInternalId(),
                 bpg, BatchProductIngestionMode.builder()
-                .functionGroupsMode(BatchProductIngestionMode.FunctionGroupsMode.UPSERT)
                 .dataGroupIngestionMode(BatchProductIngestionMode.DataGroupsMode.UPSERT)
-                .arrangementsMode(BatchProductIngestionMode.ArrangementsMode.REPLACE)
                 .build()
         );
     }
