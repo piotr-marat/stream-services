@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
  * Ingestion mode for each of those can be configured separately.
  */
 @Builder
+@NoArgsConstructor
 @AllArgsConstructor
 public class BatchProductIngestionMode {
 
