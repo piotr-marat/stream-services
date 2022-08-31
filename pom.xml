@@ -44,7 +44,7 @@
     <properties>
         <backbase-bom.version>2022.03.2</backbase-bom.version>
         <ssdk.version>14.1.1</ssdk.version>
-        <boat-maven-plugin.version>0.15.8</boat-maven-plugin.version>
+        <boat-maven-plugin.version>0.15.3</boat-maven-plugin.version>
         <spring-boot.repackage.skip>true</spring-boot.repackage.skip>
         <openapi-generator-maven-plugin.language>spring</openapi-generator-maven-plugin.language>
         <openapi-generator-maven-plugin.library>spring-boot</openapi-generator-maven-plugin.library>
