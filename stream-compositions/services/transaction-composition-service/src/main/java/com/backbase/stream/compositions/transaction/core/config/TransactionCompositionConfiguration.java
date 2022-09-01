@@ -1,9 +1,12 @@
 package com.backbase.stream.compositions.transaction.core.config;
 
+import com.backbase.buildingblocks.webclient.WebClientConstants;
 import com.backbase.stream.compositions.transaction.cursor.client.TransactionCursorApi;
 import com.backbase.stream.compositions.transaction.integration.ApiClient;
 import com.backbase.stream.compositions.transaction.integration.client.TransactionIntegrationApi;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,6 +14,9 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.http.codec.ServerCodecConfigurer;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.web.server.SecurityWebFilterChain;
+import org.springframework.web.reactive.function.client.WebClient;
+
+import java.text.DateFormat;
 
 @Configuration
 @AllArgsConstructor
@@ -37,16 +43,18 @@ public class TransactionCompositionConfiguration {
     }
 
     @Bean
-    public ApiClient transactionIntegrationClient() {
-        ApiClient apiClient = new ApiClient();
+    public ApiClient transactionIntegrationClient(
+            @Qualifier(WebClientConstants.INTER_SERVICE_WEB_CLIENT_NAME) WebClient dbsWebClient,
+            ObjectMapper objectMapper,
+            DateFormat dateFormat) {
+        ApiClient apiClient = new ApiClient(dbsWebClient, objectMapper, dateFormat);
         apiClient.setBasePath(transactionConfigurationProperties.getIntegrationBaseUrl());
 
         return apiClient;
     }
 
     @Bean
-    public com.backbase.stream.compositions.transaction.cursor.ApiClient transactionCursorClient(
-    ) {
+    public com.backbase.stream.compositions.transaction.cursor.ApiClient transactionCursorClient() {
         com.backbase.stream.compositions.transaction.cursor.ApiClient apiClient =
                 new com.backbase.stream.compositions.transaction.cursor.ApiClient();
         apiClient.setBasePath(transactionConfigurationProperties.getCursor().getBaseUrl());

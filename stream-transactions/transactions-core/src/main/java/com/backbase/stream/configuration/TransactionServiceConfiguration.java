@@ -71,6 +71,7 @@ public class TransactionServiceConfiguration {
         DateFormat dateFormat,
         @Qualifier(WebClientConstants.INTER_SERVICE_WEB_CLIENT_NAME) WebClient dbsWebClient,
         BackbaseStreamConfigurationProperties config) {
+
         ApiClient apiClient = new ApiClient(dbsWebClient, objectMapper, dateFormat);
         apiClient.setBasePath(config.getDbs().getTransactionManagerBaseUrl());
         return apiClient;
