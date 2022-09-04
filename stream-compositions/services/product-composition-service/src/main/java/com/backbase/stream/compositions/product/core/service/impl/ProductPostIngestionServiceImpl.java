@@ -107,7 +107,8 @@ public class ProductPostIngestionServiceImpl implements ProductPostIngestionServ
     }
 
     private void processSuccessEvent(ProductIngestResponse res) {
-        if (Boolean.TRUE.equals(config.isCompletedEventEnabled())) {
+        if (Boolean.TRUE.equals(config.isCompletedEventEnabled()) &&
+                res.getProductGroups() != null) {
             ProductCompletedEvent event = new ProductCompletedEvent()
                     .withProductGroups(res.getProductGroups().stream().map(p -> mapper.mapStreamToEvent(p)).collect(Collectors.toList()));
             EnvelopedEvent<ProductCompletedEvent> envelopedEvent = new EnvelopedEvent<>();
