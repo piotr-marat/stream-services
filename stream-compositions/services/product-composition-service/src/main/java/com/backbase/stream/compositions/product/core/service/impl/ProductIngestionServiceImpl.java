@@ -78,6 +78,9 @@ public class ProductIngestionServiceImpl implements ProductIngestionService {
      * @return Ingested product group
      */
     private Mono<ProductIngestResponse> sendToDbs(ProductIngestResponse res) {
+        if (res.getProductGroups() == null || res.getProductGroups().isEmpty()) {
+            return Mono.just(ProductIngestResponse.builder().build());
+        }
         return batchProductIngestionSaga.process(buildBatchTask(res))
                 .map(BatchProductGroupTask::getData)
                 .map(pg -> ProductIngestResponse.builder()

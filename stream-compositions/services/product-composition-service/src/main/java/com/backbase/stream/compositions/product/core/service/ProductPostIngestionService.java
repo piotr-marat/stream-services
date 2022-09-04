@@ -13,7 +13,7 @@ public interface ProductPostIngestionService {
     Mono<ProductIngestResponse> handleSuccess(ProductIngestResponse response);
 
     /**
-     * Post processing for a failed ingestion process
+     * Post-processing for a failed ingestion process
      *
      * @param error
      */
