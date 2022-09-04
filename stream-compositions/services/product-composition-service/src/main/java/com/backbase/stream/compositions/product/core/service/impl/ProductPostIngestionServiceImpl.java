@@ -122,7 +122,7 @@ public class ProductPostIngestionServiceImpl implements ProductPostIngestionServ
     }
 
     private Flux<BaseProduct> extractProducts(List<ProductGroup> productGroups) {
-        if (productGroups.isEmpty()) {
+        if (productGroups == null || productGroups.isEmpty()) {
             return Flux.empty();
         }
         return Flux.concat(
