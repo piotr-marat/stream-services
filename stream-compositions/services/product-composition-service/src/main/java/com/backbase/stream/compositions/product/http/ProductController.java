@@ -83,12 +83,17 @@ public class ProductController implements ProductCompositionApi {
      * @return IngestionResponse
      */
     private ResponseEntity<ProductIngestionResponse> mapIngestionToResponse(ProductIngestResponse response) {
-        return new ResponseEntity<>(
-                new ProductIngestionResponse()
-                        .withProductGroups(
-                                response.getProductGroups().stream()
-                                        .map(group -> mapper.mapStreamToComposition(group))
-                                        .collect(Collectors.toList())),
-                HttpStatus.CREATED);
+        if (response.getProductGroups() == null) {
+            return new ResponseEntity<>(
+                    new ProductIngestionResponse(),
+                    HttpStatus.CREATED);
+        } else
+            return new ResponseEntity<>(
+                    new ProductIngestionResponse()
+                            .withProductGroups(
+                                    response.getProductGroups().stream()
+                                            .map(group -> mapper.mapStreamToComposition(group))
+                                            .collect(Collectors.toList())),
+                    HttpStatus.CREATED);
     }
 }
