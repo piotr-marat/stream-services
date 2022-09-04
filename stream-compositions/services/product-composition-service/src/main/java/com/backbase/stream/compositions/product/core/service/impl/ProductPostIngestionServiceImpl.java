@@ -122,6 +122,9 @@ public class ProductPostIngestionServiceImpl implements ProductPostIngestionServ
     }
 
     private Flux<BaseProduct> extractProducts(List<ProductGroup> productGroups) {
+        if (productGroups.isEmpty()) {
+            return Flux.empty();
+        }
         return Flux.concat(
                         Flux.fromIterable(Optional.of(productGroups.stream()
                                         .flatMap(group -> productStream(group.getLoans()))
