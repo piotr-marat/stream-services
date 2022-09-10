@@ -233,5 +233,4 @@ public class TransactionIngestionServiceImpl implements TransactionIngestionServ
         }
         return transactionPostIngestionService.handleFailure(e);
     }
-
 }
