@@ -7,13 +7,13 @@ import java.util.List;
 
 public interface TransactionPostIngestionService {
     /**
-     * Post processing for a completed ingestion process
+     * Post-processing for a completed ingestion process
      * @param response
      */
     void handleSuccess(String arrangementId, List<TransactionsPostResponseBody> response);
 
     /**
-     * Post processing for a failed ingestion process
+     * Post-processing for a failed ingestion process
      * @param error
      */
     Mono<List<TransactionsPostResponseBody>> handleFailure(Throwable error);

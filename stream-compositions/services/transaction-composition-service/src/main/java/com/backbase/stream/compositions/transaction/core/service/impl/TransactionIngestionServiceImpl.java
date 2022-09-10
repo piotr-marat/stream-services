@@ -220,7 +220,7 @@ public class TransactionIngestionServiceImpl implements TransactionIngestionServ
                     lastTxnIds));
         }
 
-        transactionPostIngestionService.handleSuccess(transactions);
+        transactionPostIngestionService.handleSuccess(arrangementId, transactions);
 
         log.debug("Ingested transactions: {}", transactions);
     }
