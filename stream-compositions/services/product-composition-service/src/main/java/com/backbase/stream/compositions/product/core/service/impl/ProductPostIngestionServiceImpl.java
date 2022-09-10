@@ -155,6 +155,7 @@ public class ProductPostIngestionServiceImpl implements ProductPostIngestionServ
                                         .flatMap(group -> productStream(group.getCustomProducts()))
                                         .collect(Collectors.toList()))
                                 .orElseGet(Collections::emptyList)))
+                .distinct( baseProduct -> baseProduct.getExternalId())
                 .filter(this::excludeProducts);
     }
 
