@@ -24,8 +24,8 @@ public class TransactionPostIngestionServiceImpl implements TransactionPostInges
     private final TransactionConfigurationProperties transactionConfigurationProperties;
 
     @Override
-    public void handleSuccess(List<TransactionsPostResponseBody> res) {
-        log.info("Transaction ingestion completed successfully.");
+    public void handleSuccess(String arrangementId, List<TransactionsPostResponseBody> res) {
+        log.info("Transaction ingestion completed for account {} successfully.", arrangementId);
         if (Boolean.TRUE.equals(transactionConfigurationProperties.getEvents().getEnableCompleted())) {
             TransactionsCompletedEvent event = new TransactionsCompletedEvent()
                     .withTransactionIds(res.stream().map(TransactionsPostResponseBody::getId).collect(Collectors.toList()));
