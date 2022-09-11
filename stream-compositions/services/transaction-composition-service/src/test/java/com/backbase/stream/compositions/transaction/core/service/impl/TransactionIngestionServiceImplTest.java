@@ -1,10 +1,5 @@
 package com.backbase.stream.compositions.transaction.core.service.impl;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
-
 import com.backbase.buildingblocks.backend.communication.event.proxy.EventBus;
 import com.backbase.dbs.transaction.api.service.v2.model.TransactionsPostResponseBody;
 import com.backbase.stream.TransactionService;
@@ -26,11 +21,8 @@ import com.backbase.stream.compositions.transaction.cursor.client.model.Transact
 import com.backbase.stream.compositions.transaction.integration.client.model.TransactionsPostRequestBody;
 import com.backbase.stream.transaction.TransactionTask;
 import com.backbase.stream.worker.model.UnitOfWork;
-
-import java.time.OffsetDateTime;
-import java.util.List;
-import java.util.Map;
-
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -42,40 +34,49 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.time.OffsetDateTime;
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 @ExtendWith(MockitoExtension.class)
 class TransactionIngestionServiceImplTest {
 
-    private TransactionIngestionService transactionIngestionService;
-
-    @Mock
-    private TransactionIntegrationService transactionIntegrationService;
-
     TransactionPostIngestionService transactionPostIngestionService;
-
     TransactionConfigurationProperties config = new TransactionConfigurationProperties();
-
     @Mock
     EventBus eventBus;
 
     @Mock
     TransactionService transactionService;
+
     @Mock
     TransactionCursorApi transactionCursorApi;
 
+    @Mock
+    MeterRegistry meterRegistry;
+
     TransactionMapper mapper = Mappers.getMapper(TransactionMapper.class);
+    private TransactionIngestionService transactionIngestionService;
+
+    @Mock
+    private TransactionIntegrationService transactionIntegrationService;
 
     @BeforeEach
     void setUp() {
         transactionPostIngestionService = new TransactionPostIngestionServiceImpl(eventBus, config);
-
         transactionIngestionService = new TransactionIngestionServiceImpl(mapper,
                 transactionService, transactionIntegrationService, transactionPostIngestionService,
-                transactionCursorApi, config);
-
+                transactionCursorApi, config, meterRegistry);
     }
 
     void mockConfigForTransaction() {
-
+        when(meterRegistry.timer(any(), any(), any())).thenReturn(mock(Timer.class));
         config.setDefaultStartOffsetInDays(30);
         Events events = new Events();
         events.setEnableCompleted(Boolean.TRUE);
