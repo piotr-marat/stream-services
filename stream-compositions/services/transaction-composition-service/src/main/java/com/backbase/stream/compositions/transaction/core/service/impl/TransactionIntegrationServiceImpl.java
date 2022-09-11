@@ -33,9 +33,6 @@ public class TransactionIntegrationServiceImpl implements TransactionIntegration
 
         return transactionIntegrationApi
                 .pullTransactions(transactionMapper.mapStreamToIntegration(ingestPullRequest))
-                .flatMapIterable(PullTransactionsResponse::getTransactions)
-                .metrics().elapsed()
-                .doOnNext(tuple -> timer.record(tuple.getT1(), TimeUnit.MILLISECONDS))
-                .map(Tuple2::getT2);
+                .flatMapIterable(PullTransactionsResponse::getTransactions);
     }
 }

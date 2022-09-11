@@ -63,6 +63,5 @@ class TransactionIntegrationServiceImplTest {
                 .create(transactionIntegrationService.pullTransactions(transactionIngestPullRequest))
                 .expectNext(transactionsPostRequestBody)
                 .expectComplete();
-
     }
 }
