@@ -1,6 +1,7 @@
 package com.backbase.stream.compositions.transaction.core.service.impl;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.backbase.stream.compositions.transaction.core.mapper.TransactionMapper;
@@ -12,6 +13,8 @@ import com.backbase.stream.compositions.transaction.integration.client.model.Tra
 import java.util.List;
 import java.util.Map;
 
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,12 +32,16 @@ class TransactionIntegrationServiceImplTest {
     @Mock
     private TransactionMapper transactionMapper;
 
+    @Mock
+    MeterRegistry meterRegistry;
+
     private TransactionIntegrationServiceImpl transactionIntegrationService;
 
     @BeforeEach
     void setUp() {
+        when(meterRegistry.timer(any(), any(), any())).thenReturn(mock(Timer.class));
         transactionIntegrationService = new TransactionIntegrationServiceImpl(transactionIntegrationApi,
-                transactionMapper);
+                transactionMapper, meterRegistry);
     }
 
     @Test

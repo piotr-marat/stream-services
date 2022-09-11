@@ -56,7 +56,7 @@ public class TransactionIngestionServiceImpl implements TransactionIngestionServ
      */
     public Mono<TransactionIngestResponse> ingestPull(TransactionIngestPullRequest ingestPullRequest) {
         Timer timer = registry.timer("ingestion.composition.pull.transactions",
-                "ext-arrangement-id", ingestPullRequest.getExternalArrangementId());
+                "external-arrangement-id", ingestPullRequest.getExternalArrangementId());
 
         return buildIntegrationRequest(ingestPullRequest)
                 .map(this::pullTransactions)

@@ -6,10 +6,15 @@ import com.backbase.stream.compositions.transaction.core.service.TransactionInte
 import com.backbase.stream.compositions.transaction.integration.client.TransactionIntegrationApi;
 import com.backbase.stream.compositions.transaction.integration.client.model.PullTransactionsResponse;
 import com.backbase.stream.compositions.transaction.integration.client.model.TransactionsPostRequestBody;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
+import reactor.util.function.Tuple2;
+
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service
@@ -17,14 +22,20 @@ import reactor.core.publisher.Flux;
 public class TransactionIntegrationServiceImpl implements TransactionIntegrationService {
     private final TransactionIntegrationApi transactionIntegrationApi;
     private final TransactionMapper transactionMapper;
+    private final MeterRegistry registry;
 
     /**
      * {@inheritDoc}
      */
     public Flux<TransactionsPostRequestBody> pullTransactions(TransactionIngestPullRequest ingestPullRequest) {
+        Timer timer = registry.timer("ingestion.integration.pull.transactions",
+                "external-arrangement-id", ingestPullRequest.getExternalArrangementId());
+
         return transactionIntegrationApi
-                .pullTransactions(
-                        transactionMapper.mapStreamToIntegration(ingestPullRequest))
-                .flatMapIterable(PullTransactionsResponse::getTransactions);
+                .pullTransactions(transactionMapper.mapStreamToIntegration(ingestPullRequest))
+                .flatMapIterable(PullTransactionsResponse::getTransactions)
+                .metrics().elapsed()
+                .doOnNext(tuple -> timer.record(tuple.getT1(), TimeUnit.MILLISECONDS))
+                .map(Tuple2::getT2);
     }
 }
