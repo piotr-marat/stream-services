@@ -16,7 +16,10 @@
     <name>Stream :: Compositions :: Services :: Transaction</name>
 
     <dependencies>
-
+        <dependency>
+            <groupId>com.backbase.buildingblocks</groupId>
+            <artifactId>production-support</artifactId>
+        </dependency>
         <dependency>
             <groupId>com.backbase.stream.compositions.api</groupId>
             <artifactId>transaction-composition-api</artifactId>
