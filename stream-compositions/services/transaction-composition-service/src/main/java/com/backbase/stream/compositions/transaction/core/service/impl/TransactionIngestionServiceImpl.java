@@ -15,16 +15,20 @@ import com.backbase.stream.compositions.transaction.cursor.client.TransactionCur
 import com.backbase.stream.compositions.transaction.cursor.client.model.*;
 import com.backbase.stream.transaction.TransactionTask;
 import com.backbase.stream.worker.model.UnitOfWork;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple2;
 
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -38,10 +42,9 @@ public class TransactionIngestionServiceImpl implements TransactionIngestionServ
     private final TransactionIntegrationService transactionIntegrationService;
 
     private final TransactionPostIngestionService transactionPostIngestionService;
-
     private final TransactionCursorApi transactionCursorApi;
-
     private final TransactionConfigurationProperties config;
+    private final MeterRegistry registry;
 
     private final DateTimeFormatter offsetDateTimeFormatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 
@@ -52,6 +55,9 @@ public class TransactionIngestionServiceImpl implements TransactionIngestionServ
      * @return TransactionIngestResponse
      */
     public Mono<TransactionIngestResponse> ingestPull(TransactionIngestPullRequest ingestPullRequest) {
+        Timer timer = registry.timer("ingestion.pull.transactions",
+                "ext-arrangement-id", ingestPullRequest.getExternalArrangementId());
+
         return buildIntegrationRequest(ingestPullRequest)
                 .map(this::pullTransactions)
                 .map(f -> filterExisting(f, ingestPullRequest.getLastIngestedExternalIds()))
@@ -60,7 +66,10 @@ public class TransactionIngestionServiceImpl implements TransactionIngestionServ
                         ingestPullRequest.getArrangementId(), list))
                 .onErrorResume(e -> handleError(
                         ingestPullRequest.getArrangementId(), e))
-                .map(list -> buildResponse(list, ingestPullRequest));
+                .map(list -> buildResponse(list, ingestPullRequest))
+                .metrics().elapsed()
+                .doOnNext(tuple -> timer.record(tuple.getT1(), TimeUnit.MILLISECONDS))
+                .map(Tuple2::getT2);
     }
 
     /*
