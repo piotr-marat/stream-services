@@ -28,9 +28,6 @@ public class TransactionIntegrationServiceImpl implements TransactionIntegration
      * {@inheritDoc}
      */
     public Flux<TransactionsPostRequestBody> pullTransactions(TransactionIngestPullRequest ingestPullRequest) {
-        Timer timer = registry.timer("ingestion.integration.pull.transactions",
-                "external-arrangement-id", ingestPullRequest.getExternalArrangementId());
-
         return transactionIntegrationApi
                 .pullTransactions(transactionMapper.mapStreamToIntegration(ingestPullRequest))
                 .flatMapIterable(PullTransactionsResponse::getTransactions);
