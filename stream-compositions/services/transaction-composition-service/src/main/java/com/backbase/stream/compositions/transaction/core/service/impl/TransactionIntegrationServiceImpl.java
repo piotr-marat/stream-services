@@ -7,14 +7,10 @@ import com.backbase.stream.compositions.transaction.integration.client.Transacti
 import com.backbase.stream.compositions.transaction.integration.client.model.PullTransactionsResponse;
 import com.backbase.stream.compositions.transaction.integration.client.model.TransactionsPostRequestBody;
 import io.micrometer.core.instrument.MeterRegistry;
-import io.micrometer.core.instrument.Timer;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
-import reactor.util.function.Tuple2;
-
-import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service
