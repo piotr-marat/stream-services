@@ -14,17 +14,21 @@ import com.backbase.stream.compositions.transaction.client.model.TransactionInge
 import com.backbase.stream.compositions.transaction.client.model.TransactionPullIngestionRequest;
 import com.backbase.stream.legalentity.model.BaseProduct;
 import com.backbase.stream.legalentity.model.ProductGroup;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple2;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -42,6 +46,8 @@ public class ProductPostIngestionServiceImpl implements ProductPostIngestionServ
     private final TransactionCompositionApi transactionCompositionApi;
 
     private final ProductGroupMapper mapper;
+
+    private final MeterRegistry registry;
 
     @Override
     public Mono<ProductIngestResponse> handleSuccess(ProductIngestResponse res) {
@@ -84,6 +90,9 @@ public class ProductPostIngestionServiceImpl implements ProductPostIngestionServ
     }
 
     private Mono<ProductIngestResponse> ingestTransactions(ProductIngestResponse res) {
+        Timer timer = registry.timer("ingestion.process.pull.user.transactions",
+                "user-id", "test-username");
+
         return extractProducts(res.getProductGroups())
                 .map(product -> buildTransactionPullRequest(product, res))
                 .flatMap(transactionCompositionApi::pullTransactions)
@@ -93,6 +102,9 @@ public class ProductPostIngestionServiceImpl implements ProductPostIngestionServ
                             response.getTransactions());
                 })
                 .collectList()
+                .metrics().elapsed()
+                .doOnNext(tuple -> timer.record(tuple.getT1(), TimeUnit.MILLISECONDS))
+                .map(Tuple2::getT2)
                 .map(p -> res);
     }
 
