@@ -44,6 +44,7 @@ public class ProductIntegrationServiceImpl implements ProductIntegrationService 
             ProductIngestPullRequest request, ProductIngestResponse response) {
         response.setServiceAgreementInternalId(request.getServiceAgreementInternalId());
         response.setServiceAgreementExternalId(request.getServiceAgreementExternalId());
+        response.setUserExternalId(request.getUserExternalId());
 
         return response;
     }

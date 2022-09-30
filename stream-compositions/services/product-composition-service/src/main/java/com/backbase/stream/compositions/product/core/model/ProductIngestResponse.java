@@ -13,6 +13,7 @@ import java.util.Map;
 public class ProductIngestResponse {
     private String serviceAgreementExternalId;
     private String serviceAgreementInternalId;
+    private String userExternalId;
     private final List<ProductGroup> productGroups;
     @With
     private Map<String, String> additions;
