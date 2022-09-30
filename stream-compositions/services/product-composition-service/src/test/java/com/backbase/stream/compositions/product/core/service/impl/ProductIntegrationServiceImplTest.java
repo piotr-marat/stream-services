@@ -42,7 +42,12 @@ class ProductIntegrationServiceImplTest {
     void callIntegrationService_Success() throws UnsupportedOperationException {
         ProductGroup productGroup = new ProductGroup();
         com.backbase.stream.legalentity.model.ProductGroup productGroup1 = new com.backbase.stream.legalentity.model.ProductGroup();
-        ProductIngestResponse res = new ProductIngestResponse("id1", "id2", Arrays.asList(productGroup1), Map.of());
+        ProductIngestResponse res = new ProductIngestResponse(
+                "id1",
+                "id2",
+                "external_id",
+                Arrays.asList(productGroup1),
+                Map.of());
 
         PullProductGroupResponse getProductGroupResponse = new PullProductGroupResponse().
                 productGroups(Arrays.asList(productGroup));

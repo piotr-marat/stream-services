@@ -155,7 +155,13 @@ class ProductIngestionServiceImplTest {
         Mono<ProductGroupTask> productGroupTaskMono = Mono.just(productGroupTask);
 
         when(productIntegrationService.pullProductGroup(productIngestPullRequest))
-                .thenReturn(Mono.just(new ProductIngestResponse("id1", "id2", Arrays.asList(productGroup), Map.of())));
+                .thenReturn(Mono.just(
+                        new ProductIngestResponse(
+                                "id1",
+                                "id2",
+                                "external_id",
+                                Arrays.asList(productGroup),
+                                Map.of())));
 
         lenient().when(batchProductIngestionSaga.process(any(ProductGroupTask.class)))
                 .thenReturn(productGroupTaskMono);
