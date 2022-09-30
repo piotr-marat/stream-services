@@ -109,12 +109,18 @@ public class ProductPostIngestionServiceImpl implements ProductPostIngestionServ
     }
 
     private Mono<ProductIngestResponse> ingestTransactionsAsync(ProductIngestResponse res) {
+        Timer timer = registry.timer("ingestion.process.pull.user.transactions",
+                "user-id", res.getUserExternalId());
+
         return extractProducts(res.getProductGroups())
                 .map(product -> buildTransactionPullRequest(product, res))
                 .doOnNext(request -> transactionCompositionApi.pullTransactions(request).subscribe())
                 .doOnNext(t -> log.info("Async transaction ingestion called for arrangement: {}",
                         t.getArrangementId()))
                 .collectList()
+                .metrics().elapsed()
+                .doOnNext(tuple -> timer.record(tuple.getT1(), TimeUnit.MILLISECONDS))
+                .map(Tuple2::getT2)
                 .map(p -> res);
     }
 
