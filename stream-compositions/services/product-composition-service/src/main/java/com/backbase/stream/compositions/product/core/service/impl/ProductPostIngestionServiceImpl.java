@@ -91,7 +91,7 @@ public class ProductPostIngestionServiceImpl implements ProductPostIngestionServ
 
     private Mono<ProductIngestResponse> ingestTransactions(ProductIngestResponse res) {
         Timer timer = registry.timer("ingestion.process.pull.user.transactions",
-                "user-id", res.getUserExternalId());
+                "user-id", "user-name");
 
         return extractProducts(res.getProductGroups())
                 .map(product -> buildTransactionPullRequest(product, res))

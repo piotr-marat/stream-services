@@ -3,7 +3,9 @@ package com.backbase.stream.compositions.product.core.config;
 import com.backbase.stream.compositions.integration.product.ApiClient;
 import com.backbase.stream.compositions.integration.product.api.ProductIntegrationApi;
 import com.backbase.stream.compositions.transaction.client.TransactionCompositionApi;
+import io.micrometer.core.instrument.MeterRegistry;
 import lombok.AllArgsConstructor;
+import org.springframework.boot.actuate.autoconfigure.metrics.MeterRegistryCustomizer;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -52,5 +54,10 @@ public class ProductCompositionConfiguration {
         apiClient.setBasePath(productConfigurationProperties.getIntegrationBaseUrl());
 
         return apiClient;
+    }
+
+    @Bean
+    MeterRegistryCustomizer<MeterRegistry> metricsCommonTags() {
+        return registry -> registry.config().commonTags("application", "product-service");
     }
 }
