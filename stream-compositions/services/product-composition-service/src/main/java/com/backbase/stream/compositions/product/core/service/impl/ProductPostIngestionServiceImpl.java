@@ -114,16 +114,17 @@ public class ProductPostIngestionServiceImpl implements ProductPostIngestionServ
 
         return extractProducts(res.getProductGroups())
                 .map(product -> buildTransactionPullRequest(product, res))
-                .doOnNext(request -> transactionCompositionApi.pullTransactions(request).subscribe())
+                .doOnNext(request ->
+                        transactionCompositionApi
+                                .pullTransactions(request)
+                                .metrics().elapsed()
+                                .subscribe(tuple -> {
+                                    log.info("Recording transaction ingestion time: {}", tuple.getT1());
+                                    timer.record(tuple.getT1(), TimeUnit.MILLISECONDS);
+                                }))
                 .doOnNext(t -> log.info("Async transaction ingestion called for arrangement: {}",
                         t.getArrangementId()))
                 .collectList()
-                .metrics().elapsed()
-                .doOnNext(tuple -> {
-                    log.info("Recording transaction ingestion time: {}", tuple.getT1());
-                    timer.record(tuple.getT1(), TimeUnit.MILLISECONDS);
-                })
-                .map(Tuple2::getT2)
                 .map(p -> res);
     }
 
@@ -131,7 +132,8 @@ public class ProductPostIngestionServiceImpl implements ProductPostIngestionServ
         if (Boolean.TRUE.equals(config.isCompletedEventEnabled()) &&
                 res.getProductGroups() != null) {
             ProductCompletedEvent event = new ProductCompletedEvent()
-                    .withProductGroups(res.getProductGroups().stream().map(p -> mapper.mapStreamToEvent(p)).collect(Collectors.toList()));
+                    .withProductGroups(res.getProductGroups().stream()
+                            .map(p -> mapper.mapStreamToEvent(p)).collect(Collectors.toList()));
             EnvelopedEvent<ProductCompletedEvent> envelopedEvent = new EnvelopedEvent<>();
             envelopedEvent.setEvent(event);
             eventBus.emitEvent(envelopedEvent);
