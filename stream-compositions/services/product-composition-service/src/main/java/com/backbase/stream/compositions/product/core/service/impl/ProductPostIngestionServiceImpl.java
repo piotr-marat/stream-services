@@ -86,7 +86,6 @@ public class ProductPostIngestionServiceImpl implements ProductPostIngestionServ
         }
 
         return transactionChainMono;
-
     }
 
     private Mono<ProductIngestResponse> ingestTransactions(ProductIngestResponse res) {
