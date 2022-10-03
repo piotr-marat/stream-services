@@ -119,7 +119,10 @@ public class ProductPostIngestionServiceImpl implements ProductPostIngestionServ
                         t.getArrangementId()))
                 .collectList()
                 .metrics().elapsed()
-                .doOnNext(tuple -> timer.record(tuple.getT1(), TimeUnit.MILLISECONDS))
+                .doOnNext(tuple -> {
+                    log.info("Recording transaction ingestion time: {}", tuple.getT1());
+                    timer.record(tuple.getT1(), TimeUnit.MILLISECONDS);
+                })
                 .map(Tuple2::getT2)
                 .map(p -> res);
     }
