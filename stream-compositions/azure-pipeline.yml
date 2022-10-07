@@ -12,7 +12,7 @@ trigger:
 name: $(Date:yyyyMMdd)$(Rev:.r)
 
 pool:
-  name: Docker
+  name: NextGenDocker
   demands:
     - sh
     - maven
