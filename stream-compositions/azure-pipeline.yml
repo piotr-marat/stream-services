@@ -29,7 +29,7 @@ stages:
           - task: Maven@1
             displayName: 'Install service'
             env:
-              JAVA_HOME: /usr/lib/jvm/adoptopenjdk-11-hotspot
+              JAVA_HOME: /usr/lib/jvm/java-17-openjdk-amd64
             inputs:
               goals: 'clean install'
               mavenPomFile: '$(System.DefaultWorkingDirectory)/pom.xml'
